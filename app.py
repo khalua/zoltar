@@ -1,10 +1,5 @@
 from flask import Flask, render_template, request
 import requests
-
-import warnings
-from urllib3.exceptions import InsecureRequestWarning
-warnings.simplefilter('ignore', InsecureRequestWarning)
-
 import os
 
 
