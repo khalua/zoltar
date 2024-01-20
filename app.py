@@ -7,10 +7,6 @@ app = Flask(__name__)
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
 
-
-print('wtf')
-print(API_KEY)
-
 # API URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
 API_URL = 'https://api.openai.com/v1/chat/completions'
 
