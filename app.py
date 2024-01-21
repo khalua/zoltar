@@ -1,11 +1,12 @@
-from flask import Flask, render_template, request
-import requests
 import os
+from flask import Flask, render_template, request, send_from_directory
+import requests
+from gtts import gTTS
 
 
 app = Flask(__name__)
 
-API_KEY = os.environ.get('OPENAI_API_KEY')
+API_KEY = os.environ.get('OPENAI_API_KEY')  
 
 # API URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
 API_URL = 'https://api.openai.com/v1/chat/completions'
@@ -17,8 +18,20 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     user_input = request.form['user_input']
-    response = get_chatgpt_response(user_input)
-    return render_template('response.html', response=response)
+    response_text = get_chatgpt_response(user_input)
+    
+    # Convert response to speech
+    tts = gTTS(response_text)
+    audio_file = 'response.mp3'
+    tts.save(audio_file)
+
+    return render_template('response.html', audio_file=audio_file)
+
+@app.route('/response_audio')
+def response_audio():
+    """Route to serve the generated audio file."""
+    return send_from_directory('.', 'response.mp3', as_attachment=True)
+
 
 def get_chatgpt_response(text):
     headers = {
