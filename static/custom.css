@@ -1,6 +1,6 @@
 /* custom.css */
 body {
-    background-color: #f8f9fa;
+    background-color: #263d53;
 }
 
 .custom-button {
@@ -13,4 +13,14 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
     margin-top: 30px;
     margin-bottom: 30px;
+}
+
+h1 {
+    color: white;
+}
+
+h1.display-1 {
+    margin-bottom: 60px;
+
+
 }
