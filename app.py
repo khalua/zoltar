@@ -13,6 +13,10 @@ API_URL = 'https://api.openai.com/v1/chat/completions'
 
 @app.route('/')
 def index():
+    file_path = os.path.join(app.root_path, 'static', 'response.mp3')
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
     return render_template('index.html')
 
 @app.route('/submit', methods=['POST'])
@@ -22,7 +26,7 @@ def submit():
     
     # Convert response to speech
     tts = gTTS(response_text)
-    audio_file = 'response.mp3'
+    audio_file = 'static/response.mp3'
     tts.save(audio_file)
 
     return render_template('response.html', audio_file=audio_file)
@@ -30,7 +34,7 @@ def submit():
 @app.route('/response_audio')
 def response_audio():
     """Route to serve the generated audio file."""
-    return send_from_directory('.', 'response.mp3', as_attachment=True)
+    return send_from_directory('static', 'response.mp3', as_attachment=True)
 
 
 def get_chatgpt_response(text):
