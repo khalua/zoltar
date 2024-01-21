@@ -1,9 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Response</title>
-</head>
-<body>
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Response{% endblock %}
+
+{% block content %}
+
     <h1>Response from GPT</h1>
     
     <img id="dummy" src="{{ url_for('static', filename='default.jpg') }}" alt="Ventriloquist Dummy" height="600">
@@ -51,6 +52,5 @@
     document.getElementById('speech').addEventListener('play', animateMouth);
 
     </script>
-</body>
 
-</html>
+{% endblock %}
