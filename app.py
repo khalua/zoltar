@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, send_from_directory
 import requests
 from gtts import gTTS
+import uuid
 
 
 app = Flask(__name__)
@@ -23,13 +24,15 @@ def index():
 def submit():
     user_input = request.form['user_input']
     response_text = get_chatgpt_response(user_input)
+
+    unique_id = uuid.uuid4()  # Generate a UUID
     
     # Convert response to speech
     tts = gTTS(response_text)
     audio_file = 'static/response.mp3'
     tts.save(audio_file)
 
-    return render_template('response.html', audio_file=audio_file)
+    return render_template('response.html', audio_file=audio_file, unique_id=unique_id)
 
 @app.route('/response_audio')
 def response_audio():

@@ -12,7 +12,8 @@
 
     <!-- Audio Player -->
     <audio controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
-        <source src="/response_audio" type="audio/mpeg">
+     <!--   <source src="/response_audio" type="audio/mpeg"> -->
+        <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
