@@ -23,33 +23,33 @@
 
     <!-- JavaScript for Animation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
+    
     <script>
+        let mouthImages = [
+            "{{ url_for('static', filename='mouthOpen.jpg') }}",
+            "{{ url_for('static', filename='mouthClosed.jpg') }}",
+            // Add more states as needed
+        ];
+        let currentImage = 0;
+        let animationInterval;
 
-    let mouthImages = [
-        "{{ url_for('static', filename='mouthOpen.jpg') }}",
-        "{{ url_for('static', filename='mouthClosed.jpg') }}",
-        // Add more states as needed
-    ];
-    let currentImage = 0;
-    let animationInterval;
+        function animateMouth() {
+            animationInterval = setInterval(() => {
+                document.getElementById('dummy').src = mouthImages[currentImage];
+                currentImage = (currentImage + 1) % mouthImages.length;
+            }, 200); // Adjust timing as needed
+        }
 
-    function animateMouth() {
-        animationInterval = setInterval(() => {
-            document.getElementById('dummy').src = mouthImages[currentImage];
-            currentImage = (currentImage + 1) % mouthImages.length;
-        }, 200); // Adjust timing as needed
-    }
+        function stopMouthAnimation() {
+            clearInterval(animationInterval);
+            document.getElementById('dummy').src = "{{ url_for('static', filename='default.jpg') }}";
+        }
 
-    function stopMouthAnimation() {
-        clearInterval(animationInterval);
-        document.getElementById('dummy').src = "{{ url_for('static', filename='default.jpg') }}";
-    }
+        // Event listener for the audio 'ended' event
+        document.getElementById('speech').addEventListener('ended', stopMouthAnimation);
 
-    // Event listener for the audio 'ended' event
-    document.getElementById('speech').addEventListener('ended', stopMouthAnimation);
-
-    // Optionally, start the animation when the audio starts playing
-    document.getElementById('speech').addEventListener('play', animateMouth);
+        // Optionally, start the animation when the audio starts playing
+        document.getElementById('speech').addEventListener('play', animateMouth);
 
     </script>
 
