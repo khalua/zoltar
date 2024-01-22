@@ -6,20 +6,21 @@
 {% block content %}
 
     <h1 class="display-1">TonyGPT Responds!</h1>
-    
-    <img id="dummy" src="{{ url_for('static', filename='default.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
 
-    <br>
+  
+        <img id="dummy" src="{{ url_for('static', filename='default.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
 
-    <!-- Audio Player -->
-    <audio controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
-     <!--   <source src="/response_audio" type="audio/mpeg"> -->
-        <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+        <br>
 
-    <br> 
-    <a href="/">Ask another question</a>
+        <div class="mx-auto" style="width: 200px;">
+            <!-- Audio Player -->
+            <audio controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
+            <!--   <source src="/response_audio" type="audio/mpeg"> -->
+                <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <a href="/">Ask another question</a>
+        </div>
 
     <!-- JavaScript for Animation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
