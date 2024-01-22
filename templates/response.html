@@ -36,27 +36,29 @@
             "{{ url_for('static', filename='tonys/tony9.jpg') }}",
             // Add more states as needed
         ];
-        let currentImage = 0;
         let animationInterval;
-
+        
+        function getRandomImageIndex() {
+            return Math.floor(Math.random() * mouthImages.length);
+        }
+    
         function animateMouth() {
             animationInterval = setInterval(() => {
+                let currentImage = getRandomImageIndex();
                 document.getElementById('dummy').src = mouthImages[currentImage];
-                currentImage = (currentImage + 1) % mouthImages.length;
             }, 200); // Adjust timing as needed
         }
-
+    
         function stopMouthAnimation() {
             clearInterval(animationInterval);
             document.getElementById('dummy').src = "{{ url_for('static', filename='tonys/tony0.jpg') }}";
         }
-
+    
         // Event listener for the audio 'ended' event
         document.getElementById('speech').addEventListener('ended', stopMouthAnimation);
-
         // Optionally, start the animation when the audio starts playing
         document.getElementById('speech').addEventListener('play', animateMouth);
-
     </script>
+    
 
 {% endblock %}
