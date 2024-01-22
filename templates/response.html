@@ -5,7 +5,7 @@
 
 {% block content %}
 
-    <h1 class="display-1">Response from GPT</h1>
+    <h1 class="display-1">TonyGPT Responds!</h1>
     
     <img id="dummy" src="{{ url_for('static', filename='default.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
 
@@ -26,8 +26,14 @@
     
     <script>
         let mouthImages = [
-            "{{ url_for('static', filename='mouthOpen.jpg') }}",
-            "{{ url_for('static', filename='mouthClosed.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony1.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony2.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony3.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony5.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony6.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony7.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony8.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony9.jpg') }}",
             // Add more states as needed
         ];
         let currentImage = 0;
@@ -42,7 +48,7 @@
 
         function stopMouthAnimation() {
             clearInterval(animationInterval);
-            document.getElementById('dummy').src = "{{ url_for('static', filename='default.jpg') }}";
+            document.getElementById('dummy').src = "{{ url_for('static', filename='tonys/tony0.jpg') }}";
         }
 
         // Event listener for the audio 'ended' event
