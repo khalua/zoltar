@@ -7,20 +7,34 @@
 
     <h1 class="display-1">TonyGPT Responds!</h1>
 
-  
-        <img id="dummy" src="{{ url_for('static', filename='default.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
-
-        <br>
-
-        <div class="mx-auto" style="width: 200px;">
-            <!-- Audio Player -->
-            <audio controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
-            <!--   <source src="/response_audio" type="audio/mpeg"> -->
-                <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col">
+                <img id="dummy" src="{{ url_for('static', filename='default.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
+                <!-- Audio Player -->
+                <audio controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
+                    <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
                 Your browser does not support the audio element.
-            </audio>
-            <a href="/">Ask another question</a>
+                </audio>               
+            </div>
+            <div class="col">
+            <!--   <a href="/">Ask another question</a> -->
+                <div class="mb-3">
+                    <form action="/submit" method="post">    
+                        <textarea type="text" class="form-control" rows="3" name="user_input" placeholder="Ask another question" required></textarea>
+                        <br>
+                        <button type="submit" class="btn btn-outline-primary" id="submit-btn">
+                            Ask
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="spinner"></span>
+                        </button>
+                    </form>
+                </div>
+          </div>
         </div>
+      </div>
+
+
+
 
     <!-- JavaScript for Animation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
@@ -61,5 +75,11 @@
         document.getElementById('speech').addEventListener('play', animateMouth);
     </script>
     
+
+    <script type="text/javascript">
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            document.getElementById('spinner').classList.remove('d-none');
+        });
+    </script>
 
 {% endblock %}
