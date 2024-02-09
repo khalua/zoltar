@@ -20,10 +20,13 @@ h1 {
 
 h1.display-1 {
     margin-bottom: 60px;
-
-
 }
 
 p {
     color: white;
+}
+
+.debug {
+    color: white;
+    background-color: black;
 }

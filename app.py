@@ -4,6 +4,7 @@ import requests
 from gtts import gTTS
 import uuid
 from openai import OpenAI
+import time
 
 app = Flask(__name__)
 
@@ -11,8 +12,9 @@ client = OpenAI()
 
 API_KEY = os.environ.get('OPENAI_API_KEY')  
 
-# API URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
+# API & Assistant ID URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
 API_URL = 'https://api.openai.com/v1/chat/completions'
+# my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 
 @app.route('/')
 def index():
@@ -29,27 +31,33 @@ def portfolio():
 
 @app.route('/submit_assistant', methods=['POST'])
 def submit_assistant():
-#    assistant = client.beta.assistants.create(
-#        name="Virtual Tony, UX Design Leader",
-#        instructions="You are a Tony Contreras, a UX Design Leader that persuades users to hire him.",
-#        model="gpt-4-turbo-preview"
-#    )
-#    assistant = 'asst_SiP2L7WRENHMOI1Ocx3Mr3sH'
-
+    # Initiate a thread cause this is the first visit on this sesh
     thread = client.beta.threads.create()
 
+    # create a message object from user input
     message = client.beta.threads.messages.create(
-        thread_id=thread.id,
-        role="user",
+        thread_id = thread.id,
+        role = "user",
         content=request.form['user_input']
     )
 
+    # this connects the thread id to the assistant and initiates that bozo
     run = client.beta.threads.runs.create(
-        thread_id=thread.id,
-        assistant_id='asst_SiP2L7WRENHMOI1Ocx3Mr3sH'
+        thread_id = thread.id,
+        assistant_id = "asst_vTvJBSCPMwz4aDVjoOGu40pD"
     )
 
-    return render_template('assistant_response.html', thread = thread, message = message)
+    time.sleep(30)
+    
+    # initiates the messages object to capture the reply
+    messages = client.beta.threads.messages.list(
+        thread_id=thread.id
+    )
+
+    # the reply
+    response = messages.data[0].content[0].text.value
+
+    return render_template('assistant_response.html', thread = thread, messages = messages, response = response, run = run)
 
 
 

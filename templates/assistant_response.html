@@ -6,8 +6,17 @@
 {% block content %}
 
     <h1 class="display-1">Oh so you want to hire Tony? Fuck yes.</h1>
+    <p>AND VOILA! here is the response</p> 
+    <br> 
+    <p>{{ response }}</p>
 
-    <p>here is the thread object {{ thread }} </p>
-    <p>here is the message object {{ message }} </p>
+    <hr>
+    <p>Debug</p>
+    <p class="debug">thread > {{ thread }} </p>
+    <p class="debug">messages > {{ messages }} </p>
+    <p class="debug">run > {{ run }} </p>  
+
+
+
 
 {% endblock %}
