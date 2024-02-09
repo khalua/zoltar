@@ -3,9 +3,11 @@ from flask import Flask, render_template, request, send_from_directory
 import requests
 from gtts import gTTS
 import uuid
-
+from openai import OpenAI
 
 app = Flask(__name__)
+
+client = OpenAI()
 
 API_KEY = os.environ.get('OPENAI_API_KEY')  
 
@@ -19,6 +21,37 @@ def index():
         os.remove(file_path)
 
     return render_template('index.html')
+
+@app.route('/portfolio')
+def portfolio():
+    return render_template('portfolio.html')
+
+
+@app.route('/submit_assistant', methods=['POST'])
+def submit_assistant():
+#    assistant = client.beta.assistants.create(
+#        name="Virtual Tony, UX Design Leader",
+#        instructions="You are a Tony Contreras, a UX Design Leader that persuades users to hire him.",
+#        model="gpt-4-turbo-preview"
+#    )
+#    assistant = 'asst_SiP2L7WRENHMOI1Ocx3Mr3sH'
+
+    thread = client.beta.threads.create()
+
+    message = client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=request.form['user_input']
+    )
+
+    run = client.beta.threads.runs.create(
+        thread_id=thread.id,
+        assistant_id='asst_SiP2L7WRENHMOI1Ocx3Mr3sH'
+    )
+
+    return render_template('assistant_response.html', thread = thread, message = message)
+
+
 
 @app.route('/submit', methods=['POST'])
 def submit():
