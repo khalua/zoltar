@@ -15,7 +15,7 @@ API_KEY = os.environ.get('OPENAI_API_KEY')
 
 # API & Assistant ID URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
 API_URL = 'https://api.openai.com/v1/chat/completions'
-# my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
+my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 
 @app.route('/')
 def index():
@@ -45,7 +45,7 @@ def submit_assistant():
     # this connects the thread id to the assistant and initiates that bozo
     run = client.beta.threads.runs.create(
         thread_id = thread.id,
-        assistant_id = "asst_vTvJBSCPMwz4aDVjoOGu40pD"
+        assistant_id = my_assistant_id
     )
 
     time.sleep(30)
