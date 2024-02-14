@@ -1,11 +1,12 @@
 import os
+import time
+import uuid
+
 from flask import Flask, render_template, request, send_from_directory
 import requests
 from gtts import gTTS
-import uuid
-from openai import OpenAI
-import time
 
+from openai import OpenAI  
 app = Flask(__name__)
 
 client = OpenAI()
