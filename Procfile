@@ -1,1 +1,1 @@
-web: gunicorn zoltar:app
+web: python app.py
