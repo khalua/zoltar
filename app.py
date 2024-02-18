@@ -75,7 +75,7 @@ def submit():
     audio_file = 'static/response.mp3'
     response = client.audio.speech.create(
         model="tts-1",
-        voice="onyx",
+        voice="echo",
         input=response_text
     )
     response.stream_to_file(speech_file_path)
