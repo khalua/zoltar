@@ -1,12 +1,13 @@
 import os
 import time
 import uuid
+from pathlib import Path
 
 from flask import Flask, render_template, request, send_from_directory
 import requests
-from gtts import gTTS
 
 from openai import OpenAI  
+
 app = Flask(__name__)
 
 client = OpenAI()
@@ -69,10 +70,15 @@ def submit():
 
     unique_id = uuid.uuid4()  # Generate a UUID
     
-    # Convert response to speech
-    tts = gTTS(response_text)
+    #now using Open AI text to speech!
+    speech_file_path = Path(__file__).parent / "static/response.mp3"
     audio_file = 'static/response.mp3'
-    tts.save(audio_file)
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice="onyx",
+        input=response_text
+    )
+    response.stream_to_file(speech_file_path)
 
     return render_template('response.html', audio_file=audio_file, unique_id=unique_id)
 
