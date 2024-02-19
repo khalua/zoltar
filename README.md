@@ -5,7 +5,7 @@ This is playground experiment using OpenAI to answer questions and my goofy face
 
 
 ### notes for myself
-On new systems, set up venv by going to newly cloned directories and typing 'virtualv venv'
+On new systems, set up venv by going to newly cloned directories and typing 'virtualenv venv'
 
 each time, to start type:
 source venv/bin/activate
