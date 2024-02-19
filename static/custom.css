@@ -30,3 +30,7 @@ p {
     color: white;
     background-color: black;
 }
+
+.tonyGPTContainer {
+    padding-top: 80px;
+}

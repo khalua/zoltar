@@ -26,6 +26,25 @@ def index():
 
     return render_template('index.html')
 
+@app.route('/submit', methods=['POST'])
+def submit():
+    user_input = request.form['user_input']
+    response_text = get_chatgpt_response(user_input)
+
+    unique_id = uuid.uuid4()  # Generate a UUID
+    
+    #now using Open AI text to speech!
+    speech_file_path = Path(__file__).parent / "static/response.mp3"
+    audio_file = 'static/response.mp3'
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice="echo",
+        input=response_text
+    )
+    response.stream_to_file(speech_file_path)
+
+    return render_template('index.html', audio_file=audio_file, unique_id=unique_id)
+
 @app.route('/portfolio')
 def portfolio():
     return render_template('portfolio.html')
@@ -61,26 +80,6 @@ def submit_assistant():
 
     return render_template('assistant_response.html', thread = thread, messages = messages, response = response, run = run)
 
-
-
-@app.route('/submit', methods=['POST'])
-def submit():
-    user_input = request.form['user_input']
-    response_text = get_chatgpt_response(user_input)
-
-    unique_id = uuid.uuid4()  # Generate a UUID
-    
-    #now using Open AI text to speech!
-    speech_file_path = Path(__file__).parent / "static/response.mp3"
-    audio_file = 'static/response.mp3'
-    response = client.audio.speech.create(
-        model="tts-1",
-        voice="echo",
-        input=response_text
-    )
-    response.stream_to_file(speech_file_path)
-
-    return render_template('index.html', audio_file=audio_file, unique_id=unique_id)
 
 @app.route('/response_audio')
 def response_audio():
