@@ -80,7 +80,7 @@ def submit():
     )
     response.stream_to_file(speech_file_path)
 
-    return render_template('response.html', audio_file=audio_file, unique_id=unique_id)
+    return render_template('index.html', audio_file=audio_file, unique_id=unique_id)
 
 @app.route('/response_audio')
 def response_audio():
