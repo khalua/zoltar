@@ -1,7 +1,9 @@
 import os
 import time
 import uuid
+import json
 from pathlib import Path
+from datetime import datetime
 
 from flask import Flask, render_template, request, send_from_directory
 import requests
@@ -29,6 +31,17 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     user_input = request.form['user_input']
+
+    print(user_input) #print user input for debugging
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Get current timestamp
+
+    # Append the JSON response to a file
+    with open("logs/zoltar_file.log", "a") as f:
+        f.write(timestamp + '\n')  # Add timestamp
+        f.write(user_input + '\n') # Log request
+        f.write('\n')  # Add a newline to separate each appended response
+
+
     response_text = get_chatgpt_response(user_input)
 
     unique_id = uuid.uuid4()  # Generate a UUID
@@ -94,7 +107,7 @@ def get_chatgpt_response(text):
     }
 
     data = {
-        'model': 'gpt-4',  # Replace with your chosen model
+        'model': 'gpt-3.5-turbo',  # Replace with your chosen model
         'messages': [{'role': 'user', 'content': text}]
     }
 
@@ -102,6 +115,15 @@ def get_chatgpt_response(text):
     
     # Print the entire response for debugging
     print("Full API Response:", response.json())
+
+    # Get current timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Append the JSON response to a file
+    with open("logs/zoltar_file.log", "a") as f:
+        f.write(timestamp + '\n')  # Add timestamp
+        json.dump(response.json(), f, indent=4)
+        f.write('\n')  # Add a newline to separate each appended response
 
     if response.status_code == 200:
         # Adjust the following line based on the actual structure of the response
