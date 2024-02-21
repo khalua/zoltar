@@ -16,6 +16,8 @@ client = OpenAI()
 
 API_KEY = os.environ.get('OPENAI_API_KEY')  
 
+log_file = "logs/zoltar_file.txt"
+
 # API & Assistant ID URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
 API_URL = 'https://api.openai.com/v1/chat/completions'
 my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
@@ -36,11 +38,10 @@ def submit():
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Get current timestamp
 
     # Append the JSON response to a file
-    with open("logs/zoltar_file.log", "a") as f:
+    with open(log_file, "a") as f:
         f.write(timestamp + '\n')  # Add timestamp
         f.write(user_input + '\n') # Log request
         f.write('\n')  # Add a newline to separate each appended response
-
 
     response_text = get_chatgpt_response(user_input)
 
@@ -120,7 +121,7 @@ def get_chatgpt_response(text):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Append the JSON response to a file
-    with open("logs/zoltar_file.log", "a") as f:
+    with open(log_file, "a") as f:
         f.write(timestamp + '\n')  # Add timestamp
         json.dump(response.json(), f, indent=4)
         f.write('\n')  # Add a newline to separate each appended response

@@ -1,6 +1,6 @@
 # App files and directory
 *.mp3
-logs/*.log
+logs/*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
