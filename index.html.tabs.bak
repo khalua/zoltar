@@ -1,0 +1,161 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}TonyGPT{% endblock %}
+
+{% block content %}
+<div class="tonyGPTContainer">
+    <!-- This is the tabs. So fancy!-->
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Learn about Tony</button>
+          <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Ask general questions</button>
+          <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">About</button>
+        </div>
+    </nav>
+
+    <!-- This is the contents of the tab-->
+    <div class="tab-content" id="nav-tabContent">
+        
+        <!-- This is home (prompts) -->                
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+            <div class="container text-start">
+                <div class="row align-items-start">
+                    <div class="col-md-6 col-sm-12">
+                        <h1 class="display-2">Ask about Tony</h1>
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-lg btn-outline-primary bi-emoji-sunglasses" id="message_prompt_1" >&nbsp;&nbsp;Describe Tony</button>
+                                <br>
+                                <br>
+                                <button type="button" class="btn btn-lg btn-outline-primary bi-balloon-heart" id="message_prompt_2" >&nbsp;&nbsp;What's Tony's favorite cheese?</button>
+                            </div>
+                    </div>
+
+                    <div class="col-md-6 col-sm-12 text-center">
+                        <img id="dummy" src="{{ url_for('static', filename='tonys/tony0.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
+                    
+                        <!-- Audio Player for prompts-->
+                        <audio id="speech" controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
+                            <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>                              
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- This is AMA -->
+        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+            <div class="container text-start">
+                <div class="row align-items-start">
+                    <div class="col-md-6 col-sm-12">
+                        <h1 class="display-2">TonyGPT</h1>
+                            <div class="mb-3">
+                                <form action="/submit" method="post" id="myForm">    
+                                    <textarea type="text" class="form-control" rows="3" name="user_input" placeholder="Ask me anything" required></textarea>
+                                    <input type="hidden" name="action_type" id="actionType" value="generalSubmit">
+                                    <br>
+                                    <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                                        Ask
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="spinner"></span>
+                                    </button>
+                                </form>
+                            </div>
+                    </div>
+    
+                    <div class="col-md-6 col-sm-12 text-center">
+                        <img id="dummy-ama" src="{{ url_for('static', filename='tonys/tony0.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
+                    
+                        <!-- Audio Player -->
+                        <audio id="speech-ama" controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
+                            <source src="{{ url_for('static', filename='ama.mp3') }}?{{ unique_id }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>                              
+                    </div>
+                </div>
+            </div>
+            </div>
+
+
+        </div>
+        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">...</div>
+        <div class="tab-pane fade" id="nav-disabled" role="tabpanel" aria-labelledby="nav-disabled-tab" tabindex="0">...</div>
+    </div>
+
+    
+</div>
+</div>
+
+    <!-- JavaScript for Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
+    
+    <script>
+        
+    function setupMessagePrompt(buttonId, actionTypeValue, textareaValue) {
+        document.getElementById(buttonId).addEventListener("click", function() {
+        // Set the hidden input's value based on the provided action type
+        document.getElementById("actionType").value = actionTypeValue;
+
+        // Set the textarea's value based on the provided text
+        document.getElementById("myForm").user_input.value = textareaValue;
+      
+        // Submit the form
+        document.getElementById("myForm").submit();
+        });
+    }
+
+        // Setup the event listeners for each button with specific values
+        setupMessagePrompt("message_prompt_1", "message_prompt_1", "Describe Tony");
+        setupMessagePrompt("message_prompt_2", "message_prompt_2", "Tony's favorite cheese");
+
+
+        // The AMA images... this guy knows everything!
+        let speechElement = document.getElementById('speech-ama');
+        let mouthImagesAMA = [
+            "{{ url_for('static', filename='tonys/tony1.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony2.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony3.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony5.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony6.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony7.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony8.jpg') }}",
+            "{{ url_for('static', filename='tonys/tony9.jpg') }}",
+            // Add more states as needed
+        ];
+        let animationInterval;
+        
+        function getRandomImageIndex() {
+            return Math.floor(Math.random() * mouthImagesAMA.length);
+        }
+    
+        function animateMouth() {
+            animationInterval = setInterval(() => {
+                let currentImage = getRandomImageIndex();
+                document.getElementById('dummy-ama').src = mouthImagesAMA[currentImage];
+            }, 200); // Adjust timing as needed
+        }
+    
+        function stopMouthAnimation() {
+            clearInterval(animationInterval);
+            document.getElementById('dummy-ama').src = "{{ url_for('static', filename='tonys/tony0.jpg') }}";
+        }
+    
+        speechElement.onplay = animateMouth;
+        speechElement.onended = stopMouthAnimation;
+
+        // Handle play and pause in a single event listener
+        speechElement.onpause = function() {
+            if (speechElement.paused) {
+                stopMouthAnimation();
+            }
+        };
+
+    </script>
+    
+    <script type="text/javascript">
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            document.getElementById('spinner').classList.remove('d-none');
+        });
+    </script>
+
+{% endblock %}

@@ -33,8 +33,8 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     user_input = request.form['user_input']
-
     print(user_input) #print user input for debugging
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Get current timestamp
 
     # Append the JSON response to a file
@@ -43,7 +43,45 @@ def submit():
         f.write(user_input + '\n') # Log request
         f.write('\n')  # Add a newline to separate each appended response
 
-    response_text = get_chatgpt_response(user_input)
+    ## create the thread to ask a question
+    thread = client.beta.threads.create()
+    # print (thread)
+
+    ## package up the message from the user
+    message = client.beta.threads.messages.create(
+        thread_id = thread.id,
+        role = "user",
+        content="what do you do for fun??"
+    )
+    # print(message)
+
+    ##create a run to associate the assistant to this request
+    run = client.beta.threads.runs.create(
+        thread_id = thread.id,
+        assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
+    )
+    # print(run)
+
+    # check status
+    while True:
+        runs = client.beta.threads.runs.list(
+        thread_id = thread.id
+        )
+        status = runs.data[0].status
+
+        #check if it's completed
+        if status == 'completed':
+            break;
+        else:
+            time.sleep(1)
+
+    # the messy message object
+    messages = client.beta.threads.messages.list(
+    thread_id=thread.id
+    )
+
+    # the cleaned up response
+    response_text = messages.data[0].content[0].text.value
 
     unique_id = uuid.uuid4()  # Generate a UUID
     
@@ -52,47 +90,12 @@ def submit():
     audio_file = 'static/response.mp3'
     response = client.audio.speech.create(
         model="tts-1",
-        voice="echo",
+        voice="onyx",
         input=response_text
     )
     response.stream_to_file(speech_file_path)
 
     return render_template('index.html', audio_file=audio_file, unique_id=unique_id)
-
-@app.route('/portfolio')
-def portfolio():
-    return render_template('portfolio.html')
-
-
-@app.route('/submit_assistant', methods=['POST'])
-def submit_assistant():
-    # Initiate a thread cause this is the first visit on this sesh
-    thread = client.beta.threads.create()
-
-    # create a message object from user input
-    message = client.beta.threads.messages.create(
-        thread_id = thread.id,
-        role = "user",
-        content=request.form['user_input']
-    )
-
-    # this connects the thread id to the assistant and initiates that bozo
-    run = client.beta.threads.runs.create(
-        thread_id = thread.id,
-        assistant_id = my_assistant_id
-    )
-
-    time.sleep(30)
-    
-    # initiates the messages object to capture the reply
-    messages = client.beta.threads.messages.list(
-        thread_id=thread.id
-    )
-
-    # the reply
-    response = messages.data[0].content[0].text.value
-
-    return render_template('assistant_response.html', thread = thread, messages = messages, response = response, run = run)
 
 
 @app.route('/response_audio')
@@ -100,6 +103,20 @@ def response_audio():
     """Route to serve the generated audio file."""
     return send_from_directory('static', 'response.mp3', as_attachment=True)
 
+## helper functions ##
+#check status function baby!
+def check_status(thread_id):
+    while True:
+        runs = client.beta.threads.runs.list(
+        thread_id = thread.id
+        )
+        status = runs.data[0].status
+
+        #check if it's completed
+        if status == 'completed':
+            break;
+        else:
+            time.sleep(1)
 
 def get_chatgpt_response(text):
     headers = {
