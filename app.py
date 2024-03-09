@@ -51,7 +51,7 @@ def submit():
     message = client.beta.threads.messages.create(
         thread_id = thread.id,
         role = "user",
-        content="what do you do for fun??"
+        content=user_input
     )
     # print(message)
 
