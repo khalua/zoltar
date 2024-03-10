@@ -1,5 +1,5 @@
 # App files and directory
-*.mp3
+response.mp3
 logs/*.txt
 
 # Byte-compiled / optimized / DLL files

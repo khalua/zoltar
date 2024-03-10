@@ -58,22 +58,12 @@ def submit():
     ##create a run to associate the assistant to this request
     run = client.beta.threads.runs.create(
         thread_id = thread.id,
-        assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
+        assistant_id = my_assistant_id
     )
     # print(run)
 
     # check status
-    while True:
-        runs = client.beta.threads.runs.list(
-        thread_id = thread.id
-        )
-        status = runs.data[0].status
-
-        #check if it's completed
-        if status == 'completed':
-            break;
-        else:
-            time.sleep(1)
+    check_status(thread.id)
 
     # the messy message object
     messages = client.beta.threads.messages.list(
@@ -105,52 +95,30 @@ def response_audio():
 
 ## helper functions ##
 #check status function baby!
-def check_status(thread_id):
+def check_status(thread):
+    count = 0
     while True:
         runs = client.beta.threads.runs.list(
-        thread_id = thread.id
+        thread_id = thread
         )
         status = runs.data[0].status
+        print(count, status)
 
         #check if it's completed
         if status == 'completed':
             break;
+        elif status == 'failed':
+            print(runs)
+            error_detected()
+            break;
         else:
             time.sleep(1)
+            count += 1
 
-def get_chatgpt_response(text):
-    headers = {
-        'Authorization': f'Bearer {API_KEY}',
-        'Content-Type': 'application/json',
-    }
+def error_detected():
+    return render_template('index.html', audio_file='static/error.mp3')
 
-    data = {
-        'model': 'gpt-3.5-turbo',  # Replace with your chosen model
-        'messages': [{'role': 'user', 'content': text}]
-    }
 
-    response = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, json=data)
-    
-    # Print the entire response for debugging
-    print("Full API Response:", response.json())
-
-    # Get current timestamp
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # Append the JSON response to a file
-    with open(log_file, "a") as f:
-        f.write(timestamp + '\n')  # Add timestamp
-        json.dump(response.json(), f, indent=4)
-        f.write('\n')  # Add a newline to separate each appended response
-
-    if response.status_code == 200:
-        # Adjust the following line based on the actual structure of the response
-        return response.json()['choices'][0]['message']['content']
-    else:
-        print("Failed to get response from API")
-        print("Status Code:", response.status_code)
-        print("Response Body:", response.text)
-        return "Error: Unable to get response from the API."
 
 if __name__ == '__main__':
     app.run(debug=True)
