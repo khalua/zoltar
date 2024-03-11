@@ -1,6 +1,7 @@
 # App files and directory
 response.mp3
 logs/*.txt
+notebooks/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

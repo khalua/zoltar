@@ -13,14 +13,10 @@ from openai import OpenAI
 app = Flask(__name__)
 
 client = OpenAI()
-
 API_KEY = os.environ.get('OPENAI_API_KEY')  
+my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 
 log_file = "logs/zoltar_file.txt"
-
-# API & Assistant ID URL for GPT-4 (replace 'gpt-4' with the correct model identifier if different)
-API_URL = 'https://api.openai.com/v1/chat/completions'
-my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 
 @app.route('/')
 def index():
@@ -45,7 +41,6 @@ def submit():
 
     ## create the thread to ask a question
     thread = client.beta.threads.create()
-    # print (thread)
 
     ## package up the message from the user
     message = client.beta.threads.messages.create(
@@ -53,14 +48,12 @@ def submit():
         role = "user",
         content=user_input
     )
-    # print(message)
 
     ##create a run to associate the assistant to this request
     run = client.beta.threads.runs.create(
         thread_id = thread.id,
         assistant_id = my_assistant_id
     )
-    # print(run)
 
     # check status
     check_status(thread.id)
@@ -72,8 +65,6 @@ def submit():
 
     # the cleaned up response
     response_text = messages.data[0].content[0].text.value
-
-    unique_id = uuid.uuid4()  # Generate a UUID
     
     #now using Open AI text to speech!
     speech_file_path = Path(__file__).parent / "static/response.mp3"
@@ -85,6 +76,7 @@ def submit():
     )
     response.stream_to_file(speech_file_path)
 
+    unique_id = uuid.uuid4()  # Generate a UUID
     return render_template('index.html', audio_file=audio_file, unique_id=unique_id)
 
 
@@ -117,8 +109,6 @@ def check_status(thread):
 
 def error_detected():
     return render_template('index.html', audio_file='static/error.mp3')
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
