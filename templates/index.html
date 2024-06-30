@@ -10,40 +10,32 @@
             <div class="row align-items-start">
                 <div class="col-md-6 col-sm-12">
                     <h1 class="display-1">ChatGPTony</h1>
-                        <div class="mb-3">
-                            <form action="/submit" method="post">    
-                                <textarea type="text" class="form-control" rows="3" name="user_input" placeholder="Ask a question" required></textarea>
-                                <br>
-                                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
-                                    Ask
+                    <div class="mb-3">
+                        <form id="question-form">
+                            <textarea type="text" class="form-control" rows="3" name="user_input" placeholder="Ask a question" required></textarea>
+                            <br>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                                Ask
                                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="spinner"></span>
-                                </button>
-                            </form>
-                        </div>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-
                 <div class="col-md-6 col-sm-12 text-center">
                     <img id="dummy" src="{{ url_for('static', filename='tonys/tony0.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
-                
-                    <!-- Audio Player -->
                     <audio id="speech" controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
                         <source src="{{ url_for('static', filename='response.mp3') }}?{{ unique_id }}" type="audio/mpeg">
                         Your browser does not support the audio element.
-                    </audio>                              
+                    </audio>
                 </div>
             </div>
         </div>
     </div>
 
-
-
     <!-- JavaScript for Animation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
-    
     <script>
-
         let speechElement = document.getElementById('speech');
-
         let mouthImages = [
             "{{ url_for('static', filename='tonys/tony1.jpg') }}",
             "{{ url_for('static', filename='tonys/tony2.jpg') }}",
@@ -52,44 +44,59 @@
             "{{ url_for('static', filename='tonys/tony6.jpg') }}",
             "{{ url_for('static', filename='tonys/tony7.jpg') }}",
             "{{ url_for('static', filename='tonys/tony8.jpg') }}",
-            "{{ url_for('static', filename='tonys/tony9.jpg') }}",
-            // Add more states as needed
+            "{{ url_for('static', filename='tonys/tony9.jpg') }}"
         ];
         let animationInterval;
-        
+
         function getRandomImageIndex() {
             return Math.floor(Math.random() * mouthImages.length);
         }
-    
+
         function animateMouth() {
             animationInterval = setInterval(() => {
                 let currentImage = getRandomImageIndex();
                 document.getElementById('dummy').src = mouthImages[currentImage];
-            }, 200); // Adjust timing as needed
+            }, 200);
         }
-    
+
         function stopMouthAnimation() {
             clearInterval(animationInterval);
             document.getElementById('dummy').src = "{{ url_for('static', filename='tonys/tony0.jpg') }}";
         }
-    
+
         speechElement.onplay = animateMouth;
         speechElement.onended = stopMouthAnimation;
-
-        // Handle play and pause in a single event listener
         speechElement.onpause = function() {
             if (speechElement.paused) {
                 stopMouthAnimation();
             }
         };
 
-    </script>
-    
+        // AJAX form submission
+        document.getElementById('question-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
 
-    <script type="text/javascript">
-        document.getElementById('submit-btn').addEventListener('click', function() {
             document.getElementById('spinner').classList.remove('d-none');
+
+            fetch('/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('spinner').classList.add('d-none');
+                if (data.success) {
+                    document.getElementById('speech').src = `/static/response.mp3?${new Date().getTime()}`;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                document.getElementById('spinner').classList.add('d-none');
+                alert('Error: ' + error);
+            });
         });
     </script>
-
+    
 {% endblock %}
