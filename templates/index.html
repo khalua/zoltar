@@ -19,7 +19,7 @@
                                   <li id="q4">What kind of company do you want to work for?</li>
                                 </ul>
                             <form id="questionForm">    
-                                <textarea type="text" class="form-control" rows="3" id="user_input" name="user_input" placeholder="Ask a question and please be a little patient" required></textarea>
+                                <textarea type="text" class="form-control" rows="3" id="user_input" name="user_input" placeholder="Ask a question and be a little patient" required></textarea>
                                 <br>
                                 <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
                                     Ask
@@ -115,15 +115,15 @@
                     document.getElementById('spinner').classList.add('d-none');
                 });
             });
-        });
-       
-        const questions = ['q1', 'q2', 'q3', 'q4'];
-        questions.forEach(questionId => {
+            
+            const questions = ['q1', 'q2', 'q3', 'q4'];
+            questions.forEach(questionId => {
             document.getElementById(questionId).addEventListener('click', function() {
                 document.getElementById('user_input').value = this.textContent;
+                });
             });
         });
-
+       
         function pollStatus(requestId) {
             fetch('/check_status/' + requestId)
             .then(response => response.json())
