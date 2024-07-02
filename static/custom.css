@@ -15,6 +15,7 @@ body {
     border-radius: 10px;        /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
     margin-bottom: 30px;
+    padding-top: 60px;
 }
 
 h1 {
@@ -29,6 +30,10 @@ p {
     color: white;
 }
 
+li {
+    color: white;  
+}
+
 .debug {
     color: white;
     background-color: black;
@@ -36,4 +41,12 @@ p {
 
 .tonyGPTContainer {
     padding-top: 80px;
+}
+
+ul li {
+    cursor: pointer;
+    color: white;
+}
+ul li:hover {
+    text-decoration: underline;
 }

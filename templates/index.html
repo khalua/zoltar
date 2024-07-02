@@ -11,8 +11,15 @@
                 <div class="col-md-6 col-sm-12">
                     <h1 class="display-1">ChatGPTony</h1>
                         <div class="mb-3">
+                            <p>Chat with me! This agent is loaded with all my relevant experience. You can ask things like:</p>
+                                <ul>
+                                  <li id="q1">Why should I hire you?</li>
+                                  <li id="q2">Do you have any experience with ... ?</li>
+                                  <li id="q3">What are your greatest accomplishments?</li>
+                                  <li id="q4">What kind of company do you want to work for?</li>
+                                </ul>
                             <form id="questionForm">    
-                                <textarea type="text" class="form-control" rows="3" id="user_input" name="user_input" placeholder="Ask a question" required></textarea>
+                                <textarea type="text" class="form-control" rows="3" id="user_input" name="user_input" placeholder="Ask a question and please be a little patient" required></textarea>
                                 <br>
                                 <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
                                     Ask
@@ -107,6 +114,13 @@
                     alert('An error occurred');
                     document.getElementById('spinner').classList.add('d-none');
                 });
+            });
+        });
+       
+        const questions = ['q1', 'q2', 'q3', 'q4'];
+        questions.forEach(questionId => {
+            document.getElementById(questionId).addEventListener('click', function() {
+                document.getElementById('user_input').value = this.textContent;
             });
         });
 
