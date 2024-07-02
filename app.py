@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, jsonify
 import requests
 
 from openai import OpenAI  
@@ -28,15 +28,14 @@ def index():
 
 @app.route('/submit', methods=['POST'])
 def submit():
-    user_input = request.form['user_input']
+    user_input = request.json['user_input']
     print(user_input) #print user input for debugging
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Get current timestamp
 
     # Append the JSON response to a file
     with open(log_file, "a") as f:
-        f.write(timestamp + '\n')  # Add timestamp
-        f.write(user_input + '\n') # Log request
+        f.write(f"[{timestamp}] {user_input}\n")  # Log request with timestamp
         f.write('\n')  # Add a newline to separate each appended response
 
     ## create the thread to ask a question
@@ -76,9 +75,13 @@ def submit():
     )
     response.stream_to_file(speech_file_path)
 
-    unique_id = uuid.uuid4()  # Generate a UUID
-    return render_template('index.html', audio_file=audio_file, unique_id=unique_id)
-
+    unique_id = str(uuid.uuid4())  # Generate a UUID and convert to string
+    return jsonify({
+        "status": "success",
+        "audio_file": audio_file,
+        "unique_id": unique_id,
+        "response_text": response_text
+    })
 
 @app.route('/response_audio')
 def response_audio():
@@ -108,7 +111,7 @@ def check_status(thread):
             count += 1
 
 def error_detected():
-    return render_template('index.html', audio_file='static/error.mp3')
+    return jsonify({"status": "error", "message": "An error occurred"})
 
 if __name__ == '__main__':
     app.run(debug=True)
