@@ -1,7 +1,6 @@
 # Zoltar the Magnificent
 
-This is playground experiment using OpenAI to answer questions and my goofy face to give it some personality. Will eventually be hooked up to the assistant api to be more interactive, know more about Tony, and create threads of conversation.
-
+This is playground experiment using OpenAI to answer questions and my goofy face to give it some personality. It's hooked up to Open AI's Assistant API so it knows all about me which is kind of amazing. If you are a recruiter or a hiring manager, you can ask me about me.
 
 
 ### notes for myself
