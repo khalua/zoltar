@@ -99,6 +99,10 @@ def check_status_route(request_id):
 def response_audio():
     return send_from_directory('static', 'response.mp3', as_attachment=True)
 
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
+
 def check_status(thread_id):
     count = 0
     while True:
