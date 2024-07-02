@@ -4,19 +4,23 @@ import uuid
 import json
 from pathlib import Path
 from datetime import datetime
+import threading
 
 from flask import Flask, render_template, request, send_from_directory, jsonify
 import requests
 
-from openai import OpenAI  
+from openai import OpenAI
 
 app = Flask(__name__)
 
 client = OpenAI()
-API_KEY = os.environ.get('OPENAI_API_KEY')  
+API_KEY = os.environ.get('OPENAI_API_KEY')
 my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 
 log_file = "logs/zoltar_file.txt"
+
+# In-memory storage for request status and results
+request_status = {}
 
 @app.route('/')
 def index():
@@ -29,89 +33,87 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     user_input = request.json['user_input']
-    print(user_input) #print user input for debugging
+    request_id = str(uuid.uuid4())
+    request_status[request_id] = {"status": "processing"}
 
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Get current timestamp
-
-    # Append the JSON response to a file
-    with open(log_file, "a") as f:
-        f.write(f"[{timestamp}] {user_input}\n")  # Log request with timestamp
-        f.write('\n')  # Add a newline to separate each appended response
-
-    ## create the thread to ask a question
-    thread = client.beta.threads.create()
-
-    ## package up the message from the user
-    message = client.beta.threads.messages.create(
-        thread_id = thread.id,
-        role = "user",
-        content=user_input
-    )
-
-    ##create a run to associate the assistant to this request
-    run = client.beta.threads.runs.create(
-        thread_id = thread.id,
-        assistant_id = my_assistant_id
-    )
-
-    # check status
-    check_status(thread.id)
-
-    # the messy message object
-    messages = client.beta.threads.messages.list(
-    thread_id=thread.id
-    )
-
-    # the cleaned up response
-    response_text = messages.data[0].content[0].text.value
+    # Start processing in a background thread
+    thread = threading.Thread(target=process_request, args=(user_input, request_id))
+    thread.start()
     
-    #now using Open AI text to speech!
-    speech_file_path = Path(__file__).parent / "static/response.mp3"
-    audio_file = 'static/response.mp3'
-    response = client.audio.speech.create(
-        model="tts-1",
-        voice="onyx",
-        input=response_text
-    )
-    response.stream_to_file(speech_file_path)
+    return jsonify({"status": "processing", "request_id": request_id})
 
-    unique_id = str(uuid.uuid4())  # Generate a UUID and convert to string
-    return jsonify({
-        "status": "success",
-        "audio_file": audio_file,
-        "unique_id": unique_id,
-        "response_text": response_text
-    })
+def process_request(user_input, request_id):
+    try:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with open(log_file, "a") as f:
+            f.write(f"[{timestamp}] {user_input}\n")
+            f.write('\n')
+
+        thread = client.beta.threads.create()
+
+        message = client.beta.threads.messages.create(
+            thread_id=thread.id,
+            role="user",
+            content=user_input
+        )
+
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=my_assistant_id
+        )
+
+        check_status(thread.id)
+
+        messages = client.beta.threads.messages.list(thread_id=thread.id)
+        response_text = messages.data[0].content[0].text.value
+
+        speech_file_path = Path(__file__).parent / "static/response.mp3"
+        audio_file = 'static/response.mp3'
+        response = client.audio.speech.create(
+            model="tts-1",
+            voice="onyx",
+            input=response_text
+        )
+        response.stream_to_file(speech_file_path)
+
+        request_status[request_id] = {
+            "status": "complete",
+            "audio_file": audio_file,
+            "unique_id": str(uuid.uuid4()),
+            "response_text": response_text
+        }
+    except Exception as e:
+        request_status[request_id] = {"status": "error", "message": str(e)}
+
+@app.route('/check_status/<request_id>', methods=['GET'])
+def check_status_route(request_id):
+    status = request_status.get(request_id, {"status": "not_found"})
+    if status["status"] == "complete":
+        # Remove the status from memory after it's been retrieved
+        result = request_status.pop(request_id)
+        return jsonify(result)
+    return jsonify(status)
 
 @app.route('/response_audio')
 def response_audio():
-    """Route to serve the generated audio file."""
     return send_from_directory('static', 'response.mp3', as_attachment=True)
 
-## helper functions ##
-#check status function baby!
-def check_status(thread):
+def check_status(thread_id):
     count = 0
     while True:
-        runs = client.beta.threads.runs.list(
-        thread_id = thread
-        )
+        runs = client.beta.threads.runs.list(thread_id=thread_id)
         status = runs.data[0].status
         print(count, status)
 
-        #check if it's completed
         if status == 'completed':
-            break;
+            break
         elif status == 'failed':
             print(runs)
-            error_detected()
-            break;
+            raise Exception("Run failed")
         else:
             time.sleep(1)
             count += 1
-
-def error_detected():
-    return jsonify({"status": "error", "message": "An error occurred"})
 
 if __name__ == '__main__':
     app.run(debug=True)
