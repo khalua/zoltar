@@ -11,25 +11,31 @@ import requests
 
 from openai import OpenAI
 
+from elevenlabs import Voice, VoiceSettings, play
+from elevenlabs.client import ElevenLabs
+
+
 app = Flask(__name__)
-
 client = OpenAI()
-API_KEY = os.environ.get('OPENAI_API_KEY')
-my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 
+API_KEY = os.environ.get('OPENAI_API_KEY')
+XI_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
+my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
 log_file = "logs/zoltar_file.txt"
 
 # In-memory storage for request status and results
 request_status = {}
 
+# Home sweet home
 @app.route('/')
 def index():
     file_path = os.path.join(app.root_path, 'static', 'response.mp3')
+    # remove previous file if it exists
     if os.path.exists(file_path):
         os.remove(file_path)
-
     return render_template('index.html')
 
+# What happens after 'ask' button pressed
 @app.route('/submit', methods=['POST'])
 def submit():
     user_input = request.json['user_input']
@@ -42,34 +48,43 @@ def submit():
     
     return jsonify({"status": "processing", "request_id": request_id})
 
+# thread kicks this badboy up
 def process_request(user_input, request_id):
     try:
+        # Let's log the input just for funsies
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         with open(log_file, "a") as f:
             f.write(f"[{timestamp}] {user_input}\n")
             f.write('\n')
 
+        # Let's create a thread variable that's gonna call the OpenAI APIs
         thread = client.beta.threads.create()
 
+        # Let's create a message object to send to Assistant API
         message = client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=user_input
         )
 
+        # Let's call the run command on the Assistant API
         run = client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=my_assistant_id
         )
 
+        # This loops the request status and logs when reply comes back from OpenAI
         check_status(thread.id)
 
+        # This retrieves message from thread and extracts response 
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         response_text = messages.data[0].content[0].text.value
 
+        # Generate the audio file from response_text
         speech_file_path = Path(__file__).parent / "static/response.mp3"
         audio_file = 'static/response.mp3'
+
+        # Call to OpenAI TTS API
         response = client.audio.speech.create(
             model="tts-1",
             voice="onyx",
@@ -77,6 +92,7 @@ def process_request(user_input, request_id):
         )
         response.stream_to_file(speech_file_path)
 
+        # Reports status to keep an eye on multi thread magic
         request_status[request_id] = {
             "status": "complete",
             "audio_file": audio_file,
