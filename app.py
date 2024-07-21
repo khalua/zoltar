@@ -11,7 +11,7 @@ import requests
 
 from openai import OpenAI
 
-from elevenlabs import Voice, VoiceSettings, play
+from elevenlabs import Voice, VoiceSettings, play, save
 from elevenlabs.client import ElevenLabs
 
 
@@ -19,8 +19,9 @@ app = Flask(__name__)
 client = OpenAI()
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
-XI_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
 my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
+XI_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
+xi_voice_id = '5KQy6V8rc2DXUx3E6x0y'
 log_file = "logs/zoltar_file.txt"
 
 # In-memory storage for request status and results
@@ -80,17 +81,23 @@ def process_request(user_input, request_id):
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         response_text = messages.data[0].content[0].text.value
 
-        # Generate the audio file from response_text
-        speech_file_path = Path(__file__).parent / "static/response.mp3"
+        # Woohoo! elevelabs API
+        client_audio = ElevenLabs(
+            api_key=os.environ.get('ELEVENLABS_API_KEY'), # Defaults to ELEVEN_API_KEY
+        )
+    
+        audio = client_audio.generate(
+        text=response_text,
+            voice=Voice(
+                voice_id = xi_voice_id,
+                settings=VoiceSettings(stability=0.50, similarity_boost=0.75, style=0.0, use_speaker_boost=True)
+            )
+        )
+
         audio_file = 'static/response.mp3'
 
-        # Call to OpenAI TTS API
-        response = client.audio.speech.create(
-            model="tts-1",
-            voice="onyx",
-            input=response_text
-        )
-        response.stream_to_file(speech_file_path)
+        # saves audio to file
+        save(audio, audio_file)
 
         # Reports status to keep an eye on multi thread magic
         request_status[request_id] = {
