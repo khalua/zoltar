@@ -13,9 +13,10 @@
                         <div class="mb-3">
                             <p>This handsome fella is loaded with my career experience, skills, and thoughts on product design and leadership.  Ask <i>it</i> anything! <br> Here are some prompts to get you started:</p>
                                 <ul>
-                                  <li class="clickable-question">Why should I hire you?</li>
-                                  <li class="clickable-question">What are your greatest accomplishments?</li>
+                                  <li class="clickable-question">Should I hire you?</li>
+                                  <li class="clickable-question">Tell me notable accomplishments</li>
                                   <li class="clickable-question">What kind of company do you want to work for?</li>
+                                  <li class="clickable-question">Do you like cheese?</li>
                                 </ul>
                             <br>
                             <form id="questionForm">    
@@ -99,9 +100,10 @@
 
 
         const questionAudioMap = {
-            "Why should I hire you?": "response1.mp3",
-            "What are your greatest accomplishments?": "response2.mp3",
-            "What kind of company do you want to work for?": "response3.mp3"
+            "Should I hire you?": "response1.mp3",
+            "Tell me notable accomplishments": "response2.mp3",
+            "What kind of company do you want to work for?": "response3.mp3",
+            "Do you like cheese?": "response4.mp3"
         };
 
         // New AJAX form submission and polling
@@ -112,7 +114,9 @@
                 document.getElementById('user_input').value = questionText;
 
                 if (questionText in questionAudioMap) {
-                    playCachedAudio(questionAudioMap[questionText]);
+                    // spin and pause 4 seconds
+                    document.getElementById('spinner').classList.remove('d-none');
+                    setTimeout(() => { playCachedAudio(questionAudioMap[questionText]); }, 4000);
                 } else {
                     submitQuestion(questionText);
                 }

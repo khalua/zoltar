@@ -53,10 +53,7 @@ def submit():
 def process_request(user_input, request_id):
     try:
         # Let's log the input just for funsies
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(log_file, "a") as f:
-            f.write(f"[{timestamp}] {user_input}\n")
-            f.write('\n')
+        log_stuff(user_input)
 
         # Let's create a thread variable that's gonna call the OpenAI APIs
         thread = client.beta.threads.create()
@@ -80,6 +77,9 @@ def process_request(user_input, request_id):
         # This retrieves message from thread and extracts response 
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         response_text = messages.data[0].content[0].text.value
+
+        #log the response, also for funsies
+        log_stuff(response_text)
 
         # Woohoo! elevelabs API
         client_audio = ElevenLabs(
@@ -125,6 +125,14 @@ def response_audio():
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static', filename)
+
+def log_stuff(type):
+    # Let's log the input just for funsies
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(log_file, "a") as f:
+        f.write(f"[{timestamp}] {type}\n")
+        f.write('\n')
+
 
 def check_status(thread_id):
     count = 0
