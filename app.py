@@ -19,7 +19,7 @@ app = Flask(__name__)
 client = OpenAI()
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
-my_assistant_id = 'asst_vTvJBSCPMwz4aDVjoOGu40pD'
+my_assistant_id = 'asst_s3awkEdLQK9PeFeDbzLaH6Aw'
 XI_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
 xi_voice_id = '5KQy6V8rc2DXUx3E6x0y'
 log_file = "logs/zoltar_file.txt"
