@@ -1,10 +1,10 @@
-# ChatGPTony - AI-Powered Interactive Resume 🎭
+# ChatGPTony - AI-Powered Interactive Resume 
 
 An interactive web application that brings Tony's professional experience to life through AI conversation and voice synthesis. Perfect for recruiters, hiring managers, and anyone curious about Tony's background!
 
 ## What This Application Does
 
-ChatGPTony is an innovative way to explore a professional's background. Instead of reading a static resume, you can have a natural conversation with an AI that knows all about Tony's experience, skills, and personality. The AI responds both in text and with realistic voice audio, complete with animated facial expressions.
+ChatGPTony is a fun way to learn about Tony's professional's background. Instead of reading a static resume, you can have a natural conversation with an AI that knows all about Tony's experience, skills, and personality. The AI responds both in text and with realistic voice audio, complete with ridiculous animated facial expressions.
 
 ### Key Features
 - **Interactive Q&A**: Ask questions about Tony's experience, skills, or career goals
