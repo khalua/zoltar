@@ -16,7 +16,7 @@ from elevenlabs.client import ElevenLabs
 
 
 app = Flask(__name__)
-client = OpenAI()
+client = OpenAI(timeout=30.0, max_retries=3)
 
 API_KEY = os.environ.get('OPENAI_API_KEY')
 my_assistant_id = 'asst_s3awkEdLQK9PeFeDbzLaH6Aw'
@@ -83,7 +83,8 @@ def process_request(user_input, request_id):
 
         # Woohoo! elevelabs API
         client_audio = ElevenLabs(
-            api_key=os.environ.get('ELEVENLABS_API_KEY'), # Defaults to ELEVEN_API_KEY
+            api_key=os.environ.get('ELEVENLABS_API_KEY'),
+            timeout=30.0
         )
     
         audio = client_audio.generate(
@@ -136,19 +137,35 @@ def log_stuff(type):
 
 def check_status(thread_id):
     count = 0
-    while True:
-        runs = client.beta.threads.runs.list(thread_id=thread_id)
-        status = runs.data[0].status
-        print(count, status)
+    max_attempts = 300  # 5 minutes timeout
+    
+    while count < max_attempts:
+        try:
+            runs = client.beta.threads.runs.list(thread_id=thread_id)
+            if not runs.data:
+                raise Exception("No runs found")
+                
+            status = runs.data[0].status
+            print(count, status)
 
-        if status == 'completed':
-            break
-        elif status == 'failed':
-            print(runs)
-            raise Exception("Run failed")
-        else:
+            if status == 'completed':
+                break
+            elif status == 'failed':
+                print(runs)
+                raise Exception("Run failed")
+            else:
+                # Exponential backoff: start with 0.5s, max 3s
+                sleep_time = min(0.5 * (1.5 ** min(count, 10)), 3.0)
+                time.sleep(sleep_time)
+                count += 1
+        except Exception as e:
+            if count >= max_attempts - 1:
+                raise
             time.sleep(1)
             count += 1
+    
+    if count >= max_attempts:
+        raise Exception("OpenAI request timeout after 5 minutes")
 
 if __name__ == '__main__':
     app.run(debug=True)

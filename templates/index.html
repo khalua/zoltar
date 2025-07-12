@@ -165,7 +165,7 @@
         });
     }
 
-    function pollStatus(requestId) {
+    function pollStatus(requestId, pollCount = 0) {
         fetch('/check_status/' + requestId)
         .then(response => response.json())
         .then(data => {
@@ -174,7 +174,9 @@
             } else if (data.status === "error") {
                 throw new Error(data.message);
             } else {
-                setTimeout(() => pollStatus(requestId), 2000);
+                // Exponential backoff for polling: start at 1s, max 5s
+                const nextPoll = Math.min(1000 * Math.pow(1.5, pollCount), 5000);
+                setTimeout(() => pollStatus(requestId, pollCount + 1), nextPoll);
             }
         })
         .catch((error) => {
