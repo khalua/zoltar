@@ -105,8 +105,7 @@ export OPENAI_API_KEY="your-openai-key"
 export ELEVENLABS_API_KEY="your-elevenlabs-key"
 
 # Run the application
-python app.py
-```
+python3 app.py
 
 ### Deployment
 The application is configured for Heroku deployment
