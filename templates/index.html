@@ -22,8 +22,8 @@
                             <form id="questionForm">    
                                 <textarea type="text" class="form-control" rows="3" id="user_input" name="user_input" placeholder="Ask ChatGPTony a question" required></textarea>
                                 <br>
-                                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
-                                    Ask
+                                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" style="min-width: 300px;">
+                                    <span id="button-text">Ask</span>
                                 <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true" id="spinner"></span>
                                 </button>
                             </form>
@@ -116,8 +116,8 @@
                 document.getElementById('user_input').value = questionText;
 
                 if (questionText in questionAudioMap) {
-                    // spin and pause 4 seconds
-                    document.getElementById('spinner').classList.remove('d-none');
+                    // show status messages and pause 4 seconds
+                    startStatusMessages();
                     setTimeout(() => { playCachedAudio(questionAudioMap[questionText]); }, 4000);
                 } else {
                     submitQuestion(questionText);
@@ -132,6 +132,50 @@
         });
     });
 
+    // Status messages for entertaining the user during processing
+    const statusMessages = [
+        "🤖 Connecting to OpenAI API...",
+        "🧠 Tapping into Tony's experience...",
+        "🗣️ Connecting to ElevenLabs API...",
+        "⚡ Generating intelligent response...",
+        "🎭 Preparing Tony's personality...",
+        "🔊 Synthesizing voice audio...",
+        "🎪 Adding some Tony flair...",
+        "📚 Searching career memories...",
+        "🎯 Crafting the perfect answer...",
+        "🔮 Consulting the crystal ball...",
+        "🎨 Mixing AI with creativity...",
+        "⚙️ Processing neural networks...",
+        "🎵 Tuning vocal frequencies...",
+        "🚀 Almost ready to respond..."
+    ];
+
+    let statusInterval = null;
+    let currentMessageIndex = 0;
+
+    function startStatusMessages() {
+        const buttonText = document.getElementById('button-text');
+        const spinner = document.getElementById('spinner');
+        
+        buttonText.textContent = statusMessages[0];
+        spinner.classList.remove('d-none');
+        currentMessageIndex = 0;
+
+        statusInterval = setInterval(() => {
+            currentMessageIndex = (currentMessageIndex + 1) % statusMessages.length;
+            buttonText.textContent = statusMessages[currentMessageIndex];
+        }, 2000); // Change message every 2 seconds
+    }
+
+    function stopStatusMessages() {
+        if (statusInterval) {
+            clearInterval(statusInterval);
+            statusInterval = null;
+        }
+        document.getElementById('button-text').textContent = 'Ask';
+        document.getElementById('spinner').classList.add('d-none');
+    }
+
     function playCachedAudio(audioFile) {
         const audioPlayer = document.getElementById('speech');
         audioPlayer.src = "{{ url_for('static', filename='') }}" + audioFile;
@@ -140,11 +184,11 @@
             console.error('Error playing audio:', error);
             stopMouthAnimation();
         });
-        document.getElementById('spinner').classList.add('d-none');
+        stopStatusMessages();
     }
 
     function submitQuestion(questionText) {
-        document.getElementById('spinner').classList.remove('d-none');
+        startStatusMessages();
         fetch('/submit', {
             method: 'POST',
             headers: {
@@ -163,7 +207,7 @@
         .catch((error) => {
             console.error('Error:', error);
             alert('An error occurred');
-            document.getElementById('spinner').classList.add('d-none');
+            stopStatusMessages();
         });
     }
 
@@ -184,7 +228,7 @@
         .catch((error) => {
             console.error('Error:', error);
             alert('An error occurred while checking status: ' + error.message);
-            document.getElementById('spinner').classList.add('d-none');
+            stopStatusMessages();
         });
     }
 
@@ -195,7 +239,7 @@
             console.error('Error playing audio:', error);
             stopMouthAnimation();
         });
-        document.getElementById('spinner').classList.add('d-none');
+        stopStatusMessages();
     }
 
 </script>
