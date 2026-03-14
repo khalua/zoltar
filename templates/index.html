@@ -6,12 +6,15 @@
 {% block content %}
 
     <div class="tonyGPTContainer">
+        <div class="zoltar-asterisk" data-anim="asterisk">*</div>
         <div class="container text-start">
             <div class="row align-items-start">
                 <div class="col-md-6 col-sm-12">
-                    <h1 class="display-1">ChatGPTony</h1>
-                        <div class="mb-3">
-                            <p>This handsome fella is loaded with my career experience, skills, and thoughts on product design and leadership.  Ask <i>it</i> anything! <br><br> Here are some prompts to get you started:</p>
+                    <h1 class="display-1" data-anim="title">ChatGPTony</h1>
+                    <div class="title-accent" data-anim="accent"></div>
+                        <div class="mb-3" data-anim="content">
+                            <p>This handsome fella is loaded with my career experience, skills, and thoughts on product design and leadership. Ask <em>it</em> anything!</p>
+                            <p style="margin-bottom: 8px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4);">Try these</p>
                                 <ul>
                                   <li class="clickable-question">Should I hire you?</li>
                                   <li class="clickable-question">Tell me notable accomplishments</li>
@@ -19,7 +22,7 @@
                                   <li class="clickable-question">Do you like cheese?</li>
                                 </ul>
                             <br>
-                            <form id="questionForm">    
+                            <form id="questionForm">
                                 <textarea type="text" class="form-control" rows="3" id="user_input" name="user_input" placeholder="Ask ChatGPTony a question" required></textarea>
                                 <br>
                                 <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" style="min-width: 300px;">
@@ -28,26 +31,26 @@
                                 </button>
                             </form>
                             <br>
-                            <p>This is a project to explore the use of LLMs and voice synthesis APIs in interesting new ways. Learn more about it on <a href="https://github.com/khalua/zoltar" target="_blank">GitHub</a>.</p>
+                            <p>This is a project to explore the use of LLMs and voice synthesis APIs in interesting new ways. Learn more on <a href="https://github.com/khalua/zoltar" target="_blank" class="github-link">GitHub</a>.</p>
                         </div>
                 </div>
 
-                <div class="col-md-6 col-sm-12 text-center">
+                <div class="col-md-6 col-sm-12 text-center" data-anim="photo">
                     <img id="dummy" src="{{ url_for('static', filename='tonys/tony0.jpg') }}" alt="Ventriloquist Dummy" class="img-fluid">
-                
+
                     <!-- Audio Player -->
                     <audio id="speech" controls autoplay onplay="animateMouth()" onended="stopMouthAnimation()">
                         <source src="" type="audio/mpeg">
                         Your browser does not support the audio element.
-                    </audio>                              
+                    </audio>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- JavaScript for animation and audio handling -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
     <script>
         let speechElement = document.getElementById('speech');
         let animationInterval = null;
@@ -62,16 +65,15 @@
             "{{ url_for('static', filename='tonys/tony8.jpg') }}",
             "{{ url_for('static', filename='tonys/tony9.jpg') }}",
         ];
-       
+
 
         function getRandomImageIndex() {
             return Math.floor(Math.random() * mouthImages.length);
         }
 
         function animateMouth() {
-            // Clear any existing interval before starting a new one
             stopMouthAnimation();
-            
+
             if (!speechElement.paused) {
                 animationInterval = setInterval(() => {
                     let currentImage = getRandomImageIndex();
@@ -108,15 +110,29 @@
             "Do you like cheese?": "response4.mp3"
         };
 
-        // New AJAX form submission and polling
+        // Entrance animation
         document.addEventListener('DOMContentLoaded', function() {
+            const tl = gsap.timeline({ delay: 0.2 });
+
+            gsap.set('[data-anim="title"]', { opacity: 0, y: 60 });
+            gsap.set('[data-anim="accent"]', { opacity: 0, width: 0 });
+            gsap.set('[data-anim="content"]', { opacity: 0, y: 30 });
+            gsap.set('[data-anim="photo"]', { opacity: 0, scale: 0.8, rotation: -5 });
+            gsap.set('[data-anim="asterisk"]', { opacity: 0, scale: 0, rotation: -180 });
+
+            tl.to('[data-anim="title"]', { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out' }, 0)
+              .to('[data-anim="accent"]', { opacity: 1, width: 60, duration: 0.8, ease: 'expo.out' }, 0.4)
+              .to('[data-anim="photo"]', { opacity: 1, scale: 1, rotation: 0, duration: 1.2, ease: 'expo.out' }, 0.3)
+              .to('[data-anim="asterisk"]', { opacity: 1, scale: 1, rotation: 0, duration: 1, ease: 'expo.out' }, 0.5)
+              .to('[data-anim="content"]', { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, 0.6);
+
+        // AJAX form submission and polling
         document.querySelectorAll('.clickable-question').forEach(function(question) {
             question.addEventListener('click', function() {
                 const questionText = this.textContent;
                 document.getElementById('user_input').value = questionText;
 
                 if (questionText in questionAudioMap) {
-                    // show status messages and pause 4 seconds
                     startStatusMessages();
                     setTimeout(() => { playCachedAudio(questionAudioMap[questionText]); }, 4000);
                 } else {
@@ -132,22 +148,21 @@
         });
     });
 
-    // Status messages for entertaining the user during processing
     const statusMessages = [
-        "🤖 Connecting to OpenAI API...",
-        "🧠 Tapping into Tony's experience...",
-        "🗣️ Connecting to ElevenLabs API...",
-        "⚡ Generating intelligent response...",
-        "🎭 Preparing Tony's personality...",
-        "🔊 Synthesizing voice audio...",
-        "🎪 Adding some Tony flair...",
-        "📚 Searching career memories...",
-        "🎯 Crafting the perfect answer...",
-        "🔮 Consulting the crystal ball...",
-        "🎨 Mixing AI with creativity...",
-        "⚙️ Processing neural networks...",
-        "🎵 Tuning vocal frequencies...",
-        "🚀 Almost ready to respond..."
+        "Connecting to OpenAI API...",
+        "Tapping into Tony's experience...",
+        "Connecting to ElevenLabs API...",
+        "Generating intelligent response...",
+        "Preparing Tony's personality...",
+        "Synthesizing voice audio...",
+        "Adding some Tony flair...",
+        "Searching career memories...",
+        "Crafting the perfect answer...",
+        "Consulting the crystal ball...",
+        "Mixing AI with creativity...",
+        "Processing neural networks...",
+        "Tuning vocal frequencies...",
+        "Almost ready to respond..."
     ];
 
     let statusInterval = null;
@@ -156,7 +171,7 @@
     function startStatusMessages() {
         const buttonText = document.getElementById('button-text');
         const spinner = document.getElementById('spinner');
-        
+
         buttonText.textContent = statusMessages[0];
         spinner.classList.remove('d-none');
         currentMessageIndex = 0;
@@ -164,7 +179,7 @@
         statusInterval = setInterval(() => {
             currentMessageIndex = (currentMessageIndex + 1) % statusMessages.length;
             buttonText.textContent = statusMessages[currentMessageIndex];
-        }, 2000); // Change message every 2 seconds
+        }, 2000);
     }
 
     function stopStatusMessages() {
@@ -220,7 +235,6 @@
             } else if (data.status === "error") {
                 throw new Error(data.message);
             } else {
-                // Exponential backoff for polling: start at 1s, max 5s
                 const nextPoll = Math.min(1000 * Math.pow(1.5, pollCount), 5000);
                 setTimeout(() => pollStatus(requestId, pollCount + 1), nextPoll);
             }

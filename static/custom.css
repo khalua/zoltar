@@ -1,66 +1,243 @@
-/* custom.css */
+/* custom.css — Maximalist Energy */
+
+* { box-sizing: border-box; }
 
 body {
-    background-color: #263d53;
+    background-color: #0a0a0a;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-.custom-button {
-    background-color: navy;
-    color: white;
-}
-
-#dummy {
-    border-radius: 10px;        /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
-    margin-bottom: 30px;
-    padding-top: 60px;
-}
+/* ── Typography ── */
 
 h1 {
-    color: white;
-    font-family: "DM Serif Display", serif;
-    font-weight: 400;
+    color: #fff;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 900;
     font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
 }
 
 h1.display-1 {
-    margin-bottom: 60px;
-}
-
-h2.display-1 {
-    margin-bottom: 60px;
+    font-size: clamp(56px, 10vw, 120px);
+    margin-bottom: 40px;
 }
 
 p {
-    color: white;
-    font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
+    color: rgba(255,255,255,0.75);
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.7;
 }
 
 li {
-    color: white;  
-    font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
+    color: rgba(255,255,255,0.75);
+    font-family: "Inter", sans-serif;
     font-weight: 400;
-    font-style: normal;
+    font-size: 15px;
+    line-height: 1.8;
 }
+
+a { color: #e63946; }
+a:hover { color: #ff4d5a; }
+
+/* ── Layout ── */
+
+.tonyGPTContainer {
+    padding-top: 100px;
+    position: relative;
+}
+
+/* Ghost text */
+.tonyGPTContainer::before {
+    content: 'ASK';
+    position: absolute;
+    top: -20px;
+    left: -5%;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 900;
+    font-size: clamp(160px, 25vw, 360px);
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.03);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ── Image ── */
+
+#dummy {
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #e63946, 0 0 0 8px rgba(230,57,70,0.2), 0 40px 80px rgba(0,0,0,0.6);
+    margin-bottom: 30px;
+    padding-top: 0;
+    max-width: 380px;
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+/* ── Form ── */
+
+.form-control {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    border-radius: 0;
+    padding: 16px 20px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255,255,255,0.08);
+    border-color: #e63946;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(230,57,70,0.15);
+}
+
+.form-control::placeholder {
+    color: rgba(255,255,255,0.3);
+}
+
+/* ── Button ── */
+
+.btn-primary,
+.custom-button {
+    background-color: #e63946;
+    border: none;
+    color: #fff;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-radius: 0;
+    padding: 18px 40px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover,
+.custom-button:hover {
+    background-color: #ff4d5a;
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.btn-primary:active {
+    background-color: #c5303c;
+    transform: translateY(0);
+}
+
+.btn-primary:focus-visible {
+    outline: 2px solid #e63946;
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+/* ── Clickable questions ── */
+
+ul { list-style: none; padding-left: 0; }
+
+ul li.clickable-question {
+    cursor: pointer;
+    color: rgba(255,255,255,0.6);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: color 0.25s ease, padding-left 0.25s ease;
+}
+
+ul li.clickable-question:hover {
+    color: #e63946;
+    text-decoration: none;
+    padding-left: 8px;
+}
+
+ul li.clickable-question::before {
+    content: '→ ';
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+ul li.clickable-question:hover::before {
+    opacity: 1;
+}
+
+/* ── Audio player ── */
+
+audio {
+    width: 100%;
+    max-width: 380px;
+    filter: invert(1) hue-rotate(180deg);
+    opacity: 0.6;
+}
+
+/* ── Decorative asterisk ── */
+
+.zoltar-asterisk {
+    position: absolute;
+    top: 60px;
+    right: 8%;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 900;
+    font-size: clamp(60px, 8vw, 120px);
+    color: #e63946;
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* ── Accent line under title ── */
+
+.title-accent {
+    width: 60px;
+    height: 4px;
+    background: #e63946;
+    margin-bottom: 32px;
+}
+
+/* ── GitHub link ── */
+
+.github-link {
+    color: rgba(255,255,255,0.4);
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding-bottom: 2px;
+    transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.github-link:hover {
+    color: #e63946;
+    border-color: #e63946;
+}
+
+/* ── Debug ── */
 
 .debug {
     color: white;
     background-color: black;
 }
 
-.tonyGPTContainer {
-    padding-top: 80px;
-}
+/* ── Responsive ── */
 
-ul li {
-    cursor: pointer;
-    color: white;
-}
-
-ul li:hover {
-    text-decoration: underline;
+@media (max-width: 767px) {
+    .tonyGPTContainer { padding-top: 60px; }
+    h1.display-1 { font-size: clamp(40px, 12vw, 72px); margin-bottom: 24px; }
+    #dummy { max-width: 260px; }
+    .zoltar-asterisk { font-size: 50px; top: 30px; right: 5%; }
+    .tonyGPTContainer::before { font-size: clamp(100px, 20vw, 200px); }
 }
