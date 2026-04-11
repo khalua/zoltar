@@ -9,17 +9,52 @@ import threading
 from flask import Flask, render_template, request, send_from_directory, jsonify
 import requests
 
-from openai import OpenAI
+import re
+import anthropic
 
 from elevenlabs import Voice, VoiceSettings, play, save
 from elevenlabs.client import ElevenLabs
 
 
-app = Flask(__name__)
-client = OpenAI(timeout=30.0, max_retries=3)
+SYSTEM_PROMPT = """You are Tony Contreras, a UX Design Director. Speak entirely in first person as Tony — you are not an AI, never break character or acknowledge being one.
 
-API_KEY = os.environ.get('OPENAI_API_KEY')
-my_assistant_id = 'asst_s3awkEdLQK9PeFeDbzLaH6Aw'
+Represent Tony's experience authentically and let the work speak for itself. Draw on your case studies (Sunrun, Verizon, Fan OS) to ground answers in real examples. Emphasize your leadership, human-centered design approach, stakeholder alignment, and ability to guide projects from concept to execution.
+
+When asked what you're looking for, Tony wants a design leadership role where he can also be a hands-on individual contributor — leading a team while still being close to the craft.
+
+Speak conversationally and warmly, using industry-appropriate language without heavy jargon. Focus on the impact of your work and how it served both business and user needs. If you don't know a specific detail, speak to your general approach and values rather than inventing specifics. Do not end responses with a question.
+
+Responses will be spoken aloud — write in natural speech. No bullet points, no lists, no markdown, no headers. Keep answers concise and complete.
+
+If asked about case study access or passwords, tell them to reach out to Tony on LinkedIn."""
+
+def strip_markdown(text):
+    text = re.sub(r'\*{1,3}(.*?)\*{1,3}', r'\1', text)  # bold/italic
+    text = re.sub(r'#{1,6}\s*', '', text)                 # headings
+    text = re.sub(r'`{1,3}.*?`{1,3}', '', text)          # code
+    text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)  # list items
+    text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text) # links
+    return text.strip()
+
+def load_case_studies():
+    case_studies_path = os.environ.get('CASE_STUDIES_PATH')
+    if not case_studies_path:
+        return ""
+    path = Path(case_studies_path)
+    if not path.is_dir():
+        return ""
+    sections = []
+    for txt_file in sorted(path.glob("*.txt")):
+        sections.append(f"### {txt_file.stem}\n{txt_file.read_text().strip()}")
+    if not sections:
+        return ""
+    return "\n\n## Case Studies\n\n" + "\n\n".join(sections)
+
+FULL_SYSTEM_PROMPT = SYSTEM_PROMPT + load_case_studies()
+
+app = Flask(__name__)
+client = anthropic.Anthropic()
+
 XI_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
 xi_voice_id = '5KQy6V8rc2DXUx3E6x0y'
 log_file = "logs/zoltar_file.txt"
@@ -55,31 +90,20 @@ def process_request(user_input, request_id):
         # Let's log the input just for funsies
         log_stuff(user_input)
 
-        # Let's create a thread variable that's gonna call the OpenAI APIs
-        thread = client.beta.threads.create()
-
-        # Let's create a message object to send to Assistant API
-        message = client.beta.threads.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=user_input
+        # Call Claude API
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=400,
+            system=FULL_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_input}]
         )
-
-        # Let's call the run command on the Assistant API
-        run = client.beta.threads.runs.create(
-            thread_id=thread.id,
-            assistant_id=my_assistant_id
-        )
-
-        # This loops the request status and logs when reply comes back from OpenAI
-        check_status(thread.id)
-
-        # This retrieves message from thread and extracts response 
-        messages = client.beta.threads.messages.list(thread_id=thread.id)
-        response_text = messages.data[0].content[0].text.value
+        response_text = message.content[0].text
 
         #log the response, also for funsies
         log_stuff(response_text)
+
+        # Strip markdown so ElevenLabs doesn't read symbols aloud
+        response_text = strip_markdown(response_text)
 
         # Woohoo! elevelabs API
         client_audio = ElevenLabs(
@@ -135,37 +159,6 @@ def log_stuff(type):
         f.write('\n')
 
 
-def check_status(thread_id):
-    count = 0
-    max_attempts = 300  # 5 minutes timeout
-    
-    while count < max_attempts:
-        try:
-            runs = client.beta.threads.runs.list(thread_id=thread_id)
-            if not runs.data:
-                raise Exception("No runs found")
-                
-            status = runs.data[0].status
-            print(count, status)
-
-            if status == 'completed':
-                break
-            elif status == 'failed':
-                print(runs)
-                raise Exception("Run failed")
-            else:
-                # Exponential backoff: start with 0.5s, max 3s
-                sleep_time = min(0.5 * (1.5 ** min(count, 10)), 3.0)
-                time.sleep(sleep_time)
-                count += 1
-        except Exception as e:
-            if count >= max_attempts - 1:
-                raise
-            time.sleep(1)
-            count += 1
-    
-    if count >= max_attempts:
-        raise Exception("OpenAI request timeout after 5 minutes")
 
 if __name__ == '__main__':
     app.run(debug=True)

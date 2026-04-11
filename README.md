@@ -16,13 +16,13 @@ ChatGPTony is a fun way to learn about Tony's professional's background. Instead
 
 ## How It Works (Technical Overview)
 
-### OpenAI Integration
+### Anthropic Claude Integration
 
-The application uses OpenAI's Assistant API to create an intelligent conversational agent:
+The application uses Anthropic's Claude API to create an intelligent conversational agent:
 
-* **Custom Assistant**: Pre-trained with Tony's professional background, experiences, and personality
-* **Thread Management**: Each conversation creates a unique thread for context retention
-* **Smart Responses**: Leverages GPT's natural language understanding for human-like interactions
+* **Custom System Prompt**: Detailed persona and background context injected on every request
+* **Case Study Context**: Private case study files loaded at server startup and included in each request
+* **Smart Responses**: Leverages Claude Haiku for fast, high-quality conversational responses
 
 ### ElevenLabs Voice Synthesis
 
@@ -54,7 +54,7 @@ The application is deployed on a DigitalOcean virtual server using modern contai
 
 1. **User Interaction**: Visitor types a question or clicks a suggested prompt
 2. **Backend Processing**: Flask server receives the question and starts background processing
-3. **AI Processing**: OpenAI Assistant API generates an intelligent response
+3. **AI Processing**: Anthropic Claude API generates an intelligent response
 4. **Voice Generation**: ElevenLabs converts the text response to natural speech
 5. **Response Delivery**: Audio file and text are sent back to the user's browser
 6. **Visual Feedback**: Face animation plays synchronized with the audio
@@ -62,7 +62,7 @@ The application is deployed on a DigitalOcean virtual server using modern contai
 ## Technical Stack
 
 * **Backend**: Python Flask web framework
-* **AI Engine**: OpenAI Assistant API (GPT-4 based)
+* **AI Engine**: Anthropic Claude API (Haiku)
 * **Voice Synthesis**: ElevenLabs API
 * **Frontend**: HTML5, CSS3, JavaScript (with GSAP animation)
 * **Deployment Platform**: Dokku (open-source PaaS)
@@ -128,7 +128,7 @@ Dokku provides a Heroku-like experience on your own server:
 ### Prerequisites
 
 * Python 3.8+
-* OpenAI API key
+* Anthropic API key
 * ElevenLabs API key
 
 ### Local Development
@@ -146,7 +146,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Set environment variables
-export OPENAI_API_KEY="your-openai-key"
+export ANTHROPIC_API_KEY="your-anthropic-key"
 export ELEVENLABS_API_KEY="your-elevenlabs-key"
 
 # Run the application
@@ -166,8 +166,9 @@ git push dokku main
 
 # Set environment variables on server
 ssh root@your-server-ip
-dokku config:set zoltar OPENAI_API_KEY="your-key"
+dokku config:set zoltar ANTHROPIC_API_KEY="your-key"
 dokku config:set zoltar ELEVENLABS_API_KEY="your-key"
+dokku config:set zoltar CASE_STUDIES_PATH=/home/dokku/zoltar/case-studies
 
 # Enable HTTPS
 dokku letsencrypt:enable zoltar

@@ -2,6 +2,7 @@
 response.mp3
 logs/*.txt
 notebooks/
+case_studies/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
