@@ -184,7 +184,7 @@ The deployment process:
 
 ## Try It Out!
 
-Visit the live application and ask questions like:
+Visit the live application at [yerko.com](http://yerko.com) and ask questions like:
 - "Should I hire you?"
 - "Tell me about your notable accomplishments"
 - "What kind of company do you want to work for?"
